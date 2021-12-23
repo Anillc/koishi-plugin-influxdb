@@ -1,5 +1,5 @@
 import { InfluxDB as IDB, ClientOptions, WriteApi, InfluxDB } from '@influxdata/influxdb-client'
-import { Context, Logger } from 'koishi'
+import { Context, Logger, s } from 'koishi'
 import { InfluxDBService } from './service'
 
 declare module 'koishi' {
@@ -55,7 +55,7 @@ export function apply(ctx: Context, config: Config) {
                             res('请求结果过多，请尝试增加查询条件。')
                             return
                         }
-                        res(result.join('\n'))
+                        res(s.escape(result.join('\n')))
                     },
                 })
             })
