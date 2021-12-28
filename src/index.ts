@@ -1,5 +1,7 @@
-import { InfluxDB as IDB, ClientOptions, WriteApi, InfluxDB } from '@influxdata/influxdb-client'
+import type {} from '@koishijs/plugin-puppeteer'
+import { ClientOptions, InfluxDB, QueryApi } from '@influxdata/influxdb-client'
 import { Context, Logger, s } from 'koishi'
+import * as echarts from './echarts'
 import { InfluxDBService } from './service'
 
 declare module 'koishi' {
@@ -60,4 +62,28 @@ export function apply(ctx: Context, config: Config) {
                 })
             })
         })
+
+    ctx.using(['puppeteer'], draw(queryApi))
+}
+
+function draw(queryApi: QueryApi) {
+    return (ctx: Context) => {
+        ctx.command('influxdb.draw <query:rawtext>', { authority: 3 })
+            .action(async (_, query) => {
+                let page
+                try {
+                    const result = await queryApi.queryRaw(query)
+                    const html = echarts.getHTML(result)
+                    page = await ctx.puppeteer.page()
+                    await page.setContent(html)
+                    const chart = await page.waitForXPath('//*[@id="chart"]')
+                    const shot = await chart.screenshot({ encoding: 'binary' })
+                    return s.image(shot)
+                } catch (e) {
+                    return `请求错误: ${e}`
+                } finally {
+                    page?.close()
+                }
+            })
+    }
 }
