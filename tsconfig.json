@@ -1,12 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
+    "rootDir": "src",
+    "target": "ESNext",
+    "module": "UMD",
     "skipLibCheck": true,
     "declaration": true,
-    "outDir": "lib/"
+    "emitDeclarationOnly": true,
+    "moduleResolution": "node",
+    "outDir": "lib"
   },
   "include": [
-    "src/",
+    "src",
   ],
 }

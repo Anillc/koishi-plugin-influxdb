@@ -1,14 +1,12 @@
-import type {} from '@koishijs/plugin-puppeteer'
+import type {} from 'koishi-plugin-puppeteer'
 import { ClientOptions, InfluxDB, QueryApi } from '@influxdata/influxdb-client'
-import { Context, Logger, s } from 'koishi'
+import { Context, Logger, segment } from 'koishi'
 import * as echarts from './echarts'
 import { InfluxDBService } from './service'
 
 declare module 'koishi' {
-    namespace Context {
-        interface Services {
-            influxdb: InfluxDBService
-        }
+    interface Context {
+        influxdb: InfluxDBService
     }
 }
 
@@ -57,7 +55,7 @@ export function apply(ctx: Context, config: Config) {
                             res('请求结果过多，请尝试增加查询条件。')
                             return
                         }
-                        res(s.escape(result.join('\n')))
+                        res(segment.escape(result.join('\n')))
                     },
                 })
             })
@@ -78,7 +76,7 @@ function draw(queryApi: QueryApi) {
                     await page.setContent(html)
                     const chart = await page.waitForXPath('//*[@id="chart"]')
                     const shot = await chart.screenshot({ encoding: 'binary' })
-                    return s.image(shot)
+                    return segment.image(shot)
                 } catch (e) {
                     return `请求错误: ${e}`
                 } finally {
